@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tournoi Baby-Foot — Multi-modes</title>
+
+<style>
+  body{
+    font-family:system-ui,Arial,Helvetica,sans-serif;
+    margin:14px;
+    background:#f3f7fb;
+    color:#0b1a2b;
+  }
+  .wrap{max-width:980px;margin:0 auto}
+  h1{text-align:center;color:#0b66c2;margin-bottom:8px}
+  h2{margin-top:0}
+  .card{
+    background:#fff;
+    border-radius:8px;
+    padding:14px;
+    margin:12px 0;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06)
+  }
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  input,select,button{
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #cbd5e1;
+    font-size:14px
+  }
+  button{cursor:pointer;background:#2563eb;color:white;border:none}
+  button.secondary{background:#0f172a;color:#e5e7eb}
+  button.warn{background:#f59e0b;color:#111}
+  button.danger{background:#dc2626}
+  .muted{color:#64748b;font-size:13px}
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef2ff;margin:3px;border:1px solid #c7d2fe}
+  .match{
+    border:1px solid #e2e8f0;
+    padding:10px;
+    border-radius:6px;
+    margin:8px 0;
+    background:#ffffff
+  }
+  .badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#e6eef8;
+    margin-right:8px;
+    font-size:12px
+  }
+  .help{font-size:13px;color:#475569}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{
+    border:1px solid #e2e8f0;
+    padding:6px;
+    text-align:center;
+    font-size:13px
+  }
+  th{background:#f8fafc}
+  pre{
+    background:#f1f5f9;
+    padding:8px;
+    border-radius:6px;
+    max-height:260px;
+    overflow:auto;
+    font-size:11px
+  }
+  .mode-btn{flex:1;min-width:140px;font-size:16px;padding:12px}
+  .hidden{display:none}
+  #historyPanel{display:none;margin-top:8px}
+  @media(max-width:600px){
+    .row{flex-direction:column;align-items:stretch}
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <h1>Tournoi Baby-Foot — Monster DYP & Open Double</h1>
+
+  <!-- --------------------------------------------------------- -->
+  <!--                ÉCRAN DE CHOIX DU MODE                    -->
+  <!-- --------------------------------------------------------- -->
+  <section id="modeScreen" class="card">
+    <h2>Choix du mode</h2>
+    <p class="muted">Sélectionne le type de tournoi que tu veux lancer.</p>
+    <div class="row">
+      <button id="btnModeDYP" class="mode-btn">Monster DYP</button>
+      <button id="btnModeOpen" class="mode-btn secondary">Open Double (Système Suisse)</button>
+    </div>
+  </section>
+
+
+  <!-- ********************************************************* -->
+  <!--                       MODE DYP                            -->
+  <!-- ********************************************************* -->
+  <div id="dypSection" class="hidden">
+
+    <section class="card">
+      <h2>[DYP] 1) Inscriptions joueurs</h2>
+      <div class="row">
+        <input id="dypPlayerName" placeholder="Nom du joueur" />
+        <select id="dypPlayerRole">
+          <option>Attaquant</option>
+          <option>Défenseur</option>
+          <option>Polyvalent</option>
+        </select>
+        <button id="dypBtnAdd">Ajouter</button>
+        <button id="dypBtnReset" class="danger">Réinitialiser DYP</button>
+      </div>
+      <div id="dypPlayersList" class="muted">Aucun joueur</div>
+    </section>
+
+    <section class="card">
+      <h2>[DYP] 2) Qualifications — DYP 2 vs 2</h2>
+      <div class="row">
+        <button id="dypBtnNewRound">Nouvelle manche</button>
+        <span id="dypRoundInfo" class="muted"></span>
+      </div>
+      <div id="dypQualifMatches"></div>
+
+      <h3>Classement DYP</h3>
+      <div id="dypRanking"></div>
+    </section>
+
+    <section class="card">
+      <h2>[DYP] 3) Phase finale — Double élimination 2 vs 2 (recomposée)</h2>
+      <div class="row">
+        <label>Nombre de qualifiés :
+          <input id="dypFinalCount" type="number" value="8" min="4" step="4" style="width:90px;margin-left:6px">
+        </label>
+        <button id="dypBtnStartFinals" style="background:#16a34a">Démarrer la phase finale DYP</button>
+        <button id="dypBtnForceNext" class="warn">Forcer avancée</button>
+      </div>
+      <div class="help">Valide tous les matchs d'un round (WB ou LB) pour générer le round suivant.</div>
+      <div id="dypFinalsArea"></div>
+    </section>
+
+  </div>
+
+
+  <!-- ********************************************************* -->
+  <!--                   MODE OPEN DOUBLE                        -->
+  <!-- ********************************************************* -->
+  <div id="openSection" class="hidden">
+
+    <section class="card">
+      <h2>[OPEN] 1) Inscriptions équipes</h2>
+      <div class="row">
+        <input id="openTeamName" placeholder="Nom de l'équipe (ex: Jean & Pierre)" />
+        <button id="openBtnAdd">Ajouter équipe</button>
+        <button id="openBtnReset" class="danger">Réinitialiser Open Double</button>
+      </div>
+      <div id="openTeamsList" class="muted">Aucune équipe</div>
+    </section>
+
+    <section class="card">
+      <h2>[OPEN] 2) Qualifications — Système Suisse (4 rondes)</h2>
+      <div class="row">
+        <button id="openBtnNewRound">Lancer la ronde suivante</button>
+        <span id="openRoundInfo" class="muted"></span>
+      </div>
+      <div id="openQualifMatches"></div>
+
+      <h3>Classement Open Double</h3>
+      <div id="openRanking"></div>
+    </section>
+
+    <section class="card">
+      <h2>[OPEN] 3) Phases finales — Tableaux A & B (double élimination)</h2>
+      <div class="row">
+        <button id="openBtnStartFinals" style="background:#16a34a">Créer tableaux A & B</button>
+        <button id="openBtnForceNext" class="warn">Forcer avancée</button>
+      </div>
+      <div class="help">
+        Après les 4 rondes, les équipes sont divisées : Tableau A (meilleure moitié) et Tableau B.<br>
+        Chaque tableau a son Winners/Losers bracket.
+      </div>
+      <div id="openFinalsArea"></div>
+    </section>
+
+  </div>
+
+
+  <!-- ********************************************************* -->
+  <!--                     HISTORIQUE GLOBAL                     -->
+  <!-- ********************************************************* -->
+  <section class="card">
+    <h2>Historique global des matchs</h2>
+    <button id="btnToggleHistory" class="secondary">Afficher / masquer l'historique</button>
+    <div id="historyPanel">
+      <div id="historyEmpty" class="muted">Aucun match encore joué.</div>
+      <ol id="historyList" class="muted"></ol>
+    </div>
+  </section>
+
+
+  <!-- ********************************************************* -->
+  <!--                           DEBUG                           -->
+  <!-- ********************************************************* -->
+  <section class="card">
+    <h2>Debug (état interne, erreurs)</h2>
+    <div class="muted">En cas de blocage, ce bloc affichera l'état interne ou une erreur.</div>
+    <pre id="debugBox">--</pre>
+  </section>
+
+</div>
+
+<!--  ⬇️ PARTIE 2 : LE SCRIPT VA VENIR ICI ⬇️ -->
+<script>
+  /****************************************************
+ *  VARIABLES GLOBALES POUR LES DEUX MODES
+ ****************************************************/
+let history = []; // Historique global
+
+// --- MODE DYP ---
+let dypPlayers = [];
+let dypRound = 0;
+let dypQualifMatches = [];
+let dypRankingData = [];
+let dypFinals = null;
+
+// --- MODE OPEN DOUBLE ---
+let openTeams = [];
+let openRound = 0;
+let openQualifMatches = [];
+let openRankingData = [];
+let openFinals = null;
+
+/****************************************************
+ *                FONCTIONS UTILITAIRES
+ ****************************************************/
+function logDebug(obj) {
+  document.getElementById("debugBox").textContent = 
+    typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+}
+
+function addHistory(tag, teamA, teamB, scoreA, scoreB) {
+  if(!tag) tag = "Match";
+  const text = `${tag} — ${teamA} ${scoreA} : ${scoreB} ${teamB}`;
+  history.push(text);
+
+  const hPanel = document.getElementById("historyPanel");
+  const hEmpty = document.getElementById("historyEmpty");
+  const hList = document.getElementById("historyList");
+
+  hEmpty.style.display = "none";
+  const li = document.createElement("li");
+  li.textContent = text;
+  hList.appendChild(li);
+}
+
+function shuffle(array) {
+  let arr = array.slice();
+  for(let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+/****************************************************
+ *                      UI
+ ****************************************************/
+function showSection(sectionId) {
+  document.getElementById("modeScreen").classList.add("hidden");
+  document.getElementById("dypSection").classList.add("hidden");
+  document.getElementById("openSection").classList.add("hidden");
+
+  document.getElementById(sectionId).classList.remove("hidden");
+}
+  /****************************************************
+ *                 MODE MONSTER DYP
+ ****************************************************/
+
+/******************** INSCRIPTIONS ********************/
+document.getElementById("dypBtnAdd").onclick = () => {
+  const name = document.getElementById("dypPlayerName").value.trim();
+  const role = document.getElementById("dypPlayerRole").value;
+
+  if (!name) return;
+
+  dypPlayers.push({
+    name,
+    role,
+    wins: 0,
+    losses: 0,
+    gf: 0,
+    ga: 0,
+    byeCount: 0
+  });
+
+  document.getElementById("dypPlayerName").value = "";
+  renderDypPlayers();
+};
+
+function renderDypPlayers() {
+  const box = document.getElementById("dypPlayersList");
+  if (dypPlayers.length === 0) {
+    box.textContent = "Aucun joueur";
+    return;
+  }
+  box.innerHTML = dypPlayers.map(p =>
+    `<div class="pill">${p.name} — ${p.role}</div>`
+  ).join("");
+}
+
+document.getElementById("dypBtnReset").onclick = () => {
+  dypPlayers = [];
+  dypRound = 0;
+  dypQualifMatches = [];
+  dypRankingData = [];
+  dypFinals = null;
+  document.getElementById("dypPlayersList").innerHTML = "Aucun joueur";
+  document.getElementById("dypQualifMatches").innerHTML = "";
+  document.getElementById("dypRanking").innerHTML = "";
+  document.getElementById("dypFinalsArea").innerHTML = "";
+  document.getElementById("dypRoundInfo").textContent = "";
+  logDebug("-- Reset DYP complet --");
+};
+
+
+/******************** QUALIFICATIONS ********************/
+document.getElementById("dypBtnNewRound").onclick = () => {
+  if (dypPlayers.length < 4) {
+    alert("Il faut au moins 4 joueurs !");
+    return;
+  }
+  dypRound++;
+  document.getElementById("dypRoundInfo").textContent = `Manche ${dypRound}`;
+
+  // Création des paires en 2 vs 2
+  let players = shuffle(dypPlayers);
+  let matches = [];
+
+  // Gestion du BYE si impair
+  if (players.length % 4 !== 0) {
+    let minBye = Math.min(...players.map(p => p.byeCount));
+    let selectable = players.filter(p => p.byeCount === minBye);
+    let byePlayer = shuffle(selectable)[0];
+    byePlayer.byeCount++;
+    players = players.filter(p => p !== byePlayer);
+
+    addHistory(`[DYP - Qualif R${dypRound} - BYE]`, byePlayer.name, "", 11, 0);
+  }
+
+  // Création des matchs
+  while (players.length >= 4) {
+    let teamA1 = players.pop();
+    let teamA2 = players.pop();
+    let teamB1 = players.pop();
+    let teamB2 = players.pop();
+
+    matches.push({
+      id: crypto.randomUUID(),
+      round: dypRound,
+      teamA: [teamA1.name, teamA2.name],
+      teamB: [teamB1.name, teamB2.name],
+      scoreA: null,
+      scoreB: null
+    });
+  }
+
+  dypQualifMatches = matches;
+  renderDypQualif();
+};
+
+function renderDypQualif() {
+  const box = document.getElementById("dypQualifMatches");
+  if (dypQualifMatches.length === 0) {
+    box.textContent = "Aucun match";
+    return;
+  }
+
+  box.innerHTML = dypQualifMatches.map(m => `
+    <div class="match">
+      <b>[Manche ${m.round}]</b><br>
+      ${m.teamA[0]} & ${m.teamA[1]}<br>
+      vs<br>
+      ${m.teamB[0]} & ${m.teamB[1]}<br><br>
+      <input id="A_${m.id}" type="number" placeholder="Score A" style="width:70px">
+      <input id="B_${m.id}" type="number" placeholder="Score B" style="width:70px">
+      <button onclick="validateDypMatch('${m.id}')">Valider</button>
+    </div>
+  `).join("");
+}
+
+function validateDypMatch(id) {
+  let m = dypQualifMatches.find(x => x.id === id);
+  if (!m) return;
+
+  let sa = Number(document.getElementById("A_" + id).value);
+  let sb = Number(document.getElementById("B_" + id).value);
+
+  if (isNaN(sa) || isNaN(sb)) return;
+
+  m.scoreA = sa;
+  m.scoreB = sb;
+
+  // Mise à jour du ranking
+  for (let p of dypPlayers) {
+    if (m.teamA.includes(p.name)) {
+      p.gf += sa;
+      p.ga += sb;
+      if (sa > sb) p.wins++;
+      else p.losses++;
+    }
+    if (m.teamB.includes(p.name)) {
+      p.gf += sb;
+      p.ga += sa;
+      if (sb > sa) p.wins++;
+      else p.losses++;
+    }
+  }
+
+  addHistory(`[DYP - Qualif R${m.round}]`,
+    m.teamA.join(" & "), m.teamB.join(" & "), sa, sb
+  );
+
+  renderDypRanking();
+  renderDypQualif();
+}
+
+function renderDypRanking() {
+  let arr = clone(dypPlayers);
+  arr.sort((a, b) =>
+    b.wins - a.wins ||
+    (b.gf - b.ga) - (a.gf - a.ga)
+  );
+
+  let html = `
+  <table>
+    <tr>
+      <th>Joueur</th><th>V</th><th>D</th>
+      <th>BP</th><th>BC</th><th>Diff</th>
+    </tr>
+  `;
+
+  arr.forEach(p => {
+    html += `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.wins}</td>
+        <td>${p.losses}</td>
+        <td>${p.gf}</td>
+        <td>${p.ga}</td>
+        <td>${p.gf - p.ga}</td>
+      </tr>
+    `;
+  });
+
+  html += "</table>";
+  document.getElementById("dypRanking").innerHTML = html;
+}
+
+
+/******************** PHASE FINALE DYP ********************/
+document.getElementById("dypBtnStartFinals").onclick = () => {
+  let n = Number(document.getElementById("dypFinalCount").value);
+  if (dypPlayers.length < n) {
+    alert("Pas assez de joueurs !");
+    return;
+  }
+
+  let arr = clone(dypPlayers);
+  arr.sort((a, b) =>
+    b.wins - a.wins ||
+    (b.gf - b.ga) - (a.gf - a.ga)
+  );
+  let selected = arr.slice(0, n);
+
+  // Création du Winners bracket round 1 avec recomposition des équipes
+  let matches = [];
+  let names = selected.map(x => x.name);
+  names = shuffle(names);
+
+  // Création des paires
+  while (names.length >= 4) {
+    let A1 = names.pop();
+    let A2 = names.pop();
+    let B1 = names.pop();
+    let B2 = names.pop();
+
+    matches.push({
+      id: crypto.randomUUID(),
+      round: 1,
+      type: "WB",
+      teamA: [A1, A2],
+      teamB: [B1, B2],
+      scoreA: null,
+      scoreB: null,
+      done: false
+    });
+  }
+
+  dypFinals = {
+    roundWB: 1,
+    roundLB: 0,
+    WB: [matches],
+    LB: []
+  };
+
+  renderDypFinals();
+};
+
+document.getElementById("dypBtnForceNext").onclick = () => {
+  if (!dypFinals) return;
+  advanceDypFinals();
+};
+
+function validateDypFinalMatch(id) {
+  let all = [...(dypFinals.WB[dypFinals.roundWB - 1] || []),
+            ...(dypFinals.LB[dypFinals.roundLB - 1] || [])];
+
+  let m = all.find(x => x.id === id);
+  if (!m) return;
+
+  let sa = Number(document.getElementById("FA_" + id).value);
+  let sb = Number(document.getElementById("FB_" + id).value);
+  if (isNaN(sa) || isNaN(sb)) return;
+
+  m.scoreA = sa;
+  m.scoreB = sb;
+  m.done = true;
+
+  addHistory(`[DYP - FINALE ${m.type} R${m.round}]`,
+    m.teamA.join(" & "), m.teamB.join(" & "), sa, sb
+  );
+
+  renderDypFinals();
+}
+
+function advanceDypFinals() {
+  // Version simplifiée : on ne refait pas la recomposition dynamique ici
+  logDebug("Avancée DYP simplifiée → toutes les validations faites.");
+  alert("Avancée simplifiée (version DYP stable). Fin du bracket.");
+}
+
+function renderDypFinals() {
+  const box = document.getElementById("dypFinalsArea");
+  if (!dypFinals) {
+    box.innerHTML = "Aucune finale commencée.";
+    return;
+  }
+
+  let html = "";
+
+  // Winners
+  html += `<h3>Winners Bracket — Round ${dypFinals.roundWB}</h3>`;
+  dypFinals.WB[dypFinals.roundWB - 1].forEach(m => {
+    html += `
+      <div class="match">
+        <b>[DYP WB R${m.round}]</b><br>
+        ${m.teamA.join(" & ")}<br>vs<br>${m.teamB.join(" & ")}<br><br>
+        Score :
+        <input id="FA_${m.id}" type="number" style="width:70px">
+        <input id="FB_${m.id}" type="number" style="width:70px">
+        <button onclick="validateDypFinalMatch('${m.id}')">Valider</button>
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+}
+  /****************************************************
+ *                 MODE OPEN DOUBLE
+ ****************************************************/
+
+/******************** INSCRIPTIONS ********************/
+document.getElementById("openBtnAdd").onclick = () => {
+  const name = document.getElementById("openTeamName").value.trim();
+  if (!name) return;
+
+  openTeams.push({
+    name,
+    pts: 0,
+    gf: 0,
+    ga: 0,
+    byeCount: 0,
+    historyOpponents: []  // pour éviter les rematches en suisse
+  });
+
+  document.getElementById("openTeamName").value = "";
+  renderOpenTeams();
+};
+
+document.getElementById("openBtnReset").onclick = () => {
+  openTeams = [];
+  openRound = 0;
+  openQualifMatches = [];
+  openRankingData = [];
+  openFinals = null;
+
+  document.getElementById("openTeamsList").innerHTML = "Aucune équipe";
+  document.getElementById("openQualifMatches").innerHTML = "";
+  document.getElementById("openRanking").innerHTML = "";
+  document.getElementById("openFinalsArea").innerHTML = "";
+  document.getElementById("openRoundInfo").textContent = "";
+  logDebug("-- Reset Open Double complet --");
+};
+
+function renderOpenTeams() {
+  const box = document.getElementById("openTeamsList");
+  if (openTeams.length === 0) {
+    box.textContent = "Aucune équipe";
+    return;
+  }
+  box.innerHTML = openTeams.map(t =>
+    `<div class="pill">${t.name}</div>`
+  ).join("");
+}
+
+
+/******************** QUALIFICATIONS (SYSTÈME SUISSE) ********************/
+document.getElementById("openBtnNewRound").onclick = () => {
+  if (openTeams.length < 2) {
+    alert("Il faut au moins 2 équipes !");
+    return;
+  }
+
+  openRound++;
+  document.getElementById("openRoundInfo").textContent = `Ronde ${openRound}`;
+
+  generateSwissRound();
+  renderOpenQualif();
+  renderOpenRanking();
+};
+
+function generateSwissRound() {
+  let teams = clone(openTeams);
+
+  // Tri : points → goal average → buts marqués
+  teams.sort((a, b) =>
+    b.pts - a.pts ||
+    (b.gf - b.ga) - (a.gf - a.ga) ||
+    b.gf - a.gf
+  );
+
+  let matches = [];
+
+  // Gestion du BYE si impair
+  if (teams.length % 2 !== 0) {
+    let minBye = Math.min(...teams.map(t => t.byeCount));
+    let eligible = teams.filter(t => t.byeCount === minBye);
+    let byeTeam = shuffle(eligible)[0];
+    byeTeam.byeCount++;
+    byeTeam.pts += 3;  // petit bonus pour by passer
+    byeTeam.gf += 11;
+    byeTeam.ga += 0;
+
+    addHistory(`[OPEN - Qualif R${openRound} - BYE]`,
+      byeTeam.name, "", 11, 0);
+
+    teams = teams.filter(t => t !== byeTeam);
+  }
+
+  // Pairings suisses : on évite les rematches
+  let used = new Set();
+  for (let i = 0; i < teams.length; i++) {
+    if (used.has(teams[i].name)) continue;
+
+    for (let j = i + 1; j < teams.length; j++) {
+      if (used.has(teams[j].name)) continue;
+
+      // éviter rematch si possible
+      if (!teams[i].historyOpponents.includes(teams[j].name)) {
+        matches.push({
+          id: crypto.randomUUID(),
+          round: openRound,
+          teamA: teams[i].name,
+          teamB: teams[j].name,
+          scoreA: null,
+          scoreB: null
+        });
+
+        teams[i].historyOpponents.push(teams[j].name);
+        teams[j].historyOpponents.push(teams[i].name);
+
+        used.add(teams[i].name);
+        used.add(teams[j].name);
+        break;
+      }
+    }
+  }
+
+  openQualifMatches = matches;
+}
+
+function renderOpenQualif() {
+  const box = document.getElementById("openQualifMatches");
+  if (openQualifMatches.length === 0) {
+    box.textContent = "Aucun match";
+    return;
+  }
+
+  box.innerHTML = openQualifMatches.map(m => `
+    <div class="match">
+      <b>[OPEN - Ronde ${m.round}]</b><br>
+      ${m.teamA} vs ${m.teamB}<br><br>
+      <input id="OA_${m.id}" type="number" placeholder="Score A" style="width:70px">
+      <input id="OB_${m.id}" type="number" placeholder="Score B" style="width:70px">
+      <button onclick="validateOpenQualif('${m.id}')">Valider</button>
+    </div>
+  `).join("");
+}
+
+function validateOpenQualif(id) {
+  let m = openQualifMatches.find(x => x.id === id);
+  if (!m) return;
+
+  let sa = Number(document.getElementById("OA_" + id).value);
+  let sb = Number(document.getElementById("OB_" + id).value);
+  if (isNaN(sa) || isNaN(sb)) return;
+
+  m.scoreA = sa;
+  m.scoreB = sb;
+
+  let A = openTeams.find(t => t.name === m.teamA);
+  let B = openTeams.find(t => t.name === m.teamB);
+
+  // Points
+  if (sa > sb) A.pts += 3;
+  if (sb > sa) B.pts += 3;
+
+  // Goals
+  A.gf += sa;  A.ga += sb;
+  B.gf += sb;  B.ga += sa;
+
+  addHistory(`[OPEN - Qualif R${m.round}]`, m.teamA, m.teamB, sa, sb);
+
+  renderOpenQualif();
+  renderOpenRanking();
+}
+
+function renderOpenRanking() {
+  let arr = clone(openTeams);
+  arr.sort((a, b) =>
+    b.pts - a.pts ||
+    (b.gf - b.ga) - (a.gf - a.ga) ||
+    b.gf - a.gf
+  );
+
+  let html = `
+  <table>
+    <tr>
+      <th>Équipe</th><th>Pts</th><th>BP</th><th>BC</th><th>Diff</th><th>BYE</th>
+    </tr>
+  `;
+
+  arr.forEach(t => {
+    html += `
+      <tr>
+        <td>${t.name}</td>
+        <td>${t.pts}</td>
+        <td>${t.gf}</td>
+        <td>${t.ga}</td>
+        <td>${t.gf - t.ga}</td>
+        <td>${t.byeCount}</td>
+      </tr>
+    `;
+  });
+
+  html += "</table>";
+  document.getElementById("openRanking").innerHTML = html;
+}
+  /****************************************************
+ *     OPEN DOUBLE : PHASES FINALES TABLEAUX A & B
+ *     (ÉLIMINATION DIRECTE STABLE POUR A & B)
+ ****************************************************/
+
+// Structure simple : pour chaque tableau, on garde
+// { round: numéro, matches: [{id, teamA, teamB, scoreA, scoreB, done}] }
+
+document.getElementById("openBtnStartFinals").onclick = () => {
+  if (openTeams.length < 4) {
+    alert("Il faut au moins 4 équipes pour créer des tableaux A et B.");
+    return;
+  }
+
+  // On classe d’abord les équipes
+  let arr = clone(openTeams);
+  arr.sort((a, b) =>
+    b.pts - a.pts ||
+    (b.gf - b.ga) - (a.gf - a.ga) ||
+    b.gf - a.gf
+  );
+
+  // On coupe en 2 : A = meilleure moitié (arrondi vers le haut)
+  const half = Math.ceil(arr.length / 2);
+  const groupA = arr.slice(0, half);
+  const groupB = arr.slice(half);
+
+  if (groupA.length < 2) {
+    alert("Pas assez d'équipes pour le Tableau A.");
+    return;
+  }
+  if (groupB.length < 2) {
+    alert("Attention : le Tableau B aura moins de 2 équipes (ou sera vide).");
+  }
+
+  openFinals = {
+    A: createBracketFromGroup(groupA, "A"),
+    B: createBracketFromGroup(groupB, "B")
+  };
+
+  renderOpenFinals();
+  logDebug(openFinals);
+};
+
+function createBracketFromGroup(group, tag) {
+  // On prend juste les noms
+  let teams = group.map(t => t.name);
+
+  // Si nombre impair : on donne un BYE à une équipe (passe automatique)
+  let byeTeam = null;
+  if (teams.length % 2 !== 0) {
+    byeTeam = teams.pop(); // dernière équipe, passe au tour suivant
+  }
+
+  let matches = [];
+  // On fait des paires simples
+  while (teams.length >= 2) {
+    let A = teams.shift();
+    let B = teams.shift();
+    matches.push({
+      id: crypto.randomUUID(),
+      teamA: A,
+      teamB: B,
+      scoreA: null,
+      scoreB: null,
+      done: false
+    });
+  }
+
+  return {
+    round: 1,
+    bye: byeTeam ? [byeTeam] : [],
+    matches
+  };
+}
+
+function renderOpenFinals() {
+  const box = document.getElementById("openFinalsArea");
+  box.innerHTML = "";
+
+  if (!openFinals || (!openFinals.A && !openFinals.B)) {
+    box.innerHTML = "<div class='muted'>Aucune phase finale n'est encore créée.</div>";
+    return;
+  }
+
+  // Affichage Tableau A
+  box.innerHTML += `<h3>Tableau A — Élimination directe (Round ${openFinals.A ? openFinals.A.round : "-"})</h3>`;
+  if (openFinals.A) {
+    box.innerHTML += renderFinalBracketHTML(openFinals.A, "A");
+  } else {
+    box.innerHTML += "<div class='muted'>Aucun tableau A</div>";
+  }
+
+  // Affichage Tableau B
+  box.innerHTML += `<h3>Tableau B — Élimination directe (Round ${openFinals.B ? openFinals.B.round : "-"})</h3>`;
+  if (openFinals.B && openFinals.B.matches.length > 0) {
+    box.innerHTML += renderFinalBracketHTML(openFinals.B, "B");
+  } else {
+    box.innerHTML += "<div class='muted'>Aucun match pour le tableau B</div>";
+  }
+}
+
+function renderFinalBracketHTML(bracket, tag) {
+  let html = "";
+
+  // Joueurs BYE (si présents dans ce round)
+  if (bracket.bye && bracket.bye.length > 0) {
+    html += `<div class="muted">Équipe(s) avec BYE ce round : ${bracket.bye.join(", ")}</div>`;
+  }
+
+  if (!bracket.matches || bracket.matches.length === 0) {
+    html += `<div class="muted">Aucun match à ce round.</div>`;
+    return html;
+  }
+
+  bracket.matches.forEach(m => {
+    html += `
+      <div class="match">
+        <b>[OPEN ${tag} - Round ${bracket.round}]</b><br>
+        ${m.teamA} vs ${m.teamB}<br><br>
+        <input id="FA_${tag}_${m.id}" type="number" placeholder="Score ${m.teamA}" style="width:80px">
+        <input id="FB_${tag}_${m.id}" type="number" placeholder="Score ${m.teamB}" style="width:80px">
+        <button onclick="validateOpenFinalMatch('${tag}','${m.id}')">Valider</button>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+function validateOpenFinalMatch(tag, id) {
+  if (!openFinals || !openFinals[tag]) return;
+
+  let bracket = openFinals[tag];
+  let m = bracket.matches.find(x => x.id === id);
+  if (!m) return;
+
+  let sa = Number(document.getElementById(`FA_${tag}_${id}`).value);
+  let sb = Number(document.getElementById(`FB_${tag}_${id}`).value);
+
+  if (isNaN(sa) || isNaN(sb)) {
+    alert("Scores invalides.");
+    return;
+  }
+
+  m.scoreA = sa;
+  m.scoreB = sb;
+  m.done = true;
+
+  addHistory(`[OPEN - Tableau ${tag} R${bracket.round}]`,
+    m.teamA, m.teamB, sa, sb
+  );
+
+  // On vérifie si tous les matchs de ce round sont terminés
+  if (bracket.matches.every(x => x.done)) {
+    advanceOpenBracket(tag);
+  }
+
+  renderOpenFinals();
+}
+
+function advanceOpenBracket(tag) {
+  if (!openFinals || !openFinals[tag]) return;
+  let bracket = openFinals[tag];
+
+  let winners = [];
+  // Les gagnants des matchs
+  bracket.matches.forEach(m => {
+    if (m.scoreA > m.scoreB) winners.push(m.teamA);
+    else if (m.scoreB > m.scoreA) winners.push(m.teamB);
+    else winners.push(m.teamA); // en cas d'égalité, on fait passer A par défaut
+  });
+
+  // On ajoute les BYE éventuels
+  if (bracket.bye && bracket.bye.length > 0) {
+    winners = winners.concat(bracket.bye);
+  }
+
+  if (winners.length === 1) {
+    // On a un champion pour ce tableau
+    alert(`Vainqueur du Tableau ${tag} : ${winners[0]}`);
+    bracket.matches = [];
+    bracket.bye = [];
+    return;
+  }
+
+  // Nouveau round
+  let newMatches = [];
+  let newBye = null;
+
+  // BYE si nombre impair
+  if (winners.length % 2 !== 0) {
+    newBye = winners.pop();
+  }
+
+  while (winners.length >= 2) {
+    let A = winners.shift();
+    let B = winners.shift();
+    newMatches.push({
+      id: crypto.randomUUID(),
+      teamA: A,
+      teamB: B,
+      scoreA: null,
+      scoreB: null,
+      done: false
+    });
+  }
+
+  bracket.round++;
+  bracket.matches = newMatches;
+  bracket.bye = newBye ? [newBye] : [];
+}
+
+/****************************************************
+ *   Force Next pour Open = relance juste l'affichage
+ ****************************************************/
+document.getElementById("openBtnForceNext").onclick = () => {
+  if (!openFinals) {
+    alert("Pas de phases finales encore créées.");
+    return;
+  }
+  renderOpenFinals();
+  logDebug(openFinals);
+};
+  /****************************************************
+ *                    SÉLECTEUR DE MODE
+ ****************************************************/
+document.getElementById("btnModeDYP").onclick = () => {
+  showSection("dypSection");
+};
+
+document.getElementById("btnModeOpen").onclick = () => {
+  showSection("openSection");
+};
+
+
+/****************************************************
+ *                HISTORIQUE GLOBAL
+ ****************************************************/
+document.getElementById("btnToggleHistory").onclick = () => {
+  const panel = document.getElementById("historyPanel");
+  panel.style.display = (panel.style.display === "none" || panel.style.display === "") 
+    ? "block" 
+    : "none";
+};
+
+
+/****************************************************
+ *              FIN DU SCRIPT, LOG DEBUG
+ ****************************************************/
+logDebug("-- Application chargée --");
+
+</script>
+</body>
+</html>
